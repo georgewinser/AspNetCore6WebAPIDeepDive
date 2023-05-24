@@ -11,7 +11,7 @@ internal static class StartupHelperExtensions
     {
         builder.Services.AddControllers();
 
-        builder.Services.AddScoped<ICourseLibraryRepository, 
+        builder.Services.AddScoped<ICourseLibraryRepository,
             CourseLibraryRepository>();
 
         builder.Services.AddDbContext<CourseLibraryContext>(options =>
@@ -27,17 +27,29 @@ internal static class StartupHelperExtensions
 
     // Configure the request/response pipelien
     public static WebApplication ConfigurePipeline(this WebApplication app)
-    { 
+    {
         if (app.Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
         }
- 
+        else
+        {
+            app.UseExceptionHandler(appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsync(
+                        "An Unexpected Fault has occurred. Try again later.");
+                });
+            });
+        }
+
         app.UseAuthorization();
 
-        app.MapControllers(); 
-         
-        return app; 
+        app.MapControllers();
+
+        return app;
     }
 
     public static async Task ResetDatabaseAsync(this WebApplication app)
@@ -58,6 +70,6 @@ internal static class StartupHelperExtensions
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
                 logger.LogError(ex, "An error occurred while migrating the database.");
             }
-        } 
+        }
     }
 }

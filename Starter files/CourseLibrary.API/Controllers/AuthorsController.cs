@@ -1,12 +1,12 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API.Controllers;
 
-[ApiController] 
+[ApiController]
+[Route("api/authors")]
 public class AuthorsController : ControllerBase
 {
     private readonly ICourseLibraryRepository _courseLibraryRepository;
@@ -22,18 +22,18 @@ public class AuthorsController : ControllerBase
             throw new ArgumentNullException(nameof(mapper));
     }
 
-    [HttpPost("api/author")] 
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
-    { 
+    {
         // get authors from repo
         var authorsFromRepo = await _courseLibraryRepository
-            .GetAuthorsAsync(); 
+            .GetAuthorsAsync();
 
         // return them
         return Ok(_mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
     }
 
-    [HttpGet("api/getauthor/{authorId}", Name = "GetAuthor")]
+    [HttpGet("{authorId}", Name = "Authors")]
     public async Task<ActionResult<AuthorDto>> GetAuthor(Guid authorId)
     {
         // get author from repo
@@ -48,7 +48,7 @@ public class AuthorsController : ControllerBase
         return Ok(_mapper.Map<AuthorDto>(authorFromRepo));
     }
 
-    [HttpPost("api/authors")]
+    [HttpPost]
     public async Task<ActionResult<AuthorDto>> CreateAuthor(AuthorDto author)
     {
         var authorEntity = _mapper.Map<Entities.Author>(author);
